@@ -1,3 +1,4 @@
+// server/middleware/requireAuth.js
 import jwt from 'jsonwebtoken';
 
 export default function requireAuth(req, res, next) {
@@ -11,7 +12,12 @@ export default function requireAuth(req, res, next) {
     if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: payload.id, email: payload.email, name: payload.name };
+    req.user = {
+      id: payload.id,
+      email: payload.email,
+      name: payload.name,
+      role: payload.role
+    };
     next();
   } catch {
     return res.status(401).json({ message: 'Unauthorized' });

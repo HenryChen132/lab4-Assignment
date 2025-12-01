@@ -1,3 +1,4 @@
+// server/controllers/projectController.js
 import Project from '../models/Project.js';
 export const getAll = async (_req, res) => res.json(await Project.find());
 export const getById = async (req, res) => {

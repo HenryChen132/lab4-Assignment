@@ -1,3 +1,4 @@
+// server/controllers/userController.js
 import User from '../models/User.js';
 export const getAll = async (_req, res) => res.json(await User.find());
 export const getById = async (req, res) => {

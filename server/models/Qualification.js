@@ -1,3 +1,4 @@
+// server/models/Qualification.js
 import mongoose from 'mongoose';
 
 const QualificationSchema = new mongoose.Schema({

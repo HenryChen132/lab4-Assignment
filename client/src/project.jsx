@@ -1,58 +1,248 @@
-import './controlled.css'
-export default function Project() {
-return (
-<div className="home">
-      <div className="overlay-box">
-          <h1>My Projects</h1>
-          <hr />
+// client/src/project.jsx
+import React, { useEffect, useState } from 'react';
+import './controlled.css';
+import { useAuth } from './AuthContext';
+import { API_BASE } from './apiBase';
 
-          <h3 style={{ color: 'white', backgroundColor: 'black', border: '1px solid black', borderRadius: '10px' }}>
-             Personal Zombie Shooting Game
-             </h3>
-            <ul>
-              <li>Independently developed a first-person 3D shooting game with core mechanics and a complete UI system, including weapon pickup (melee/flamethrower), combat actions, and health recovery at supply points.</li>
-              <li>Implemented interactive enemy systems for both regular zombies and boss monsters, featuring full animation states (idle, walk, run, attack, skill release, death). Developed AI behaviors such as proximity-based attacks and dynamic health bars that respond to player damage.</li>
-              <li>Built the project with Unity, leveraging C# to create interactive features and core gameplay logic.</li>
-            </ul>
-            <div className="image-row">
-               <img src="/Project1.1.png" alt="Zombie Game Screenshot 1" />
-               <img src="/Project1.2.png" alt="Zombie Game Screenshot 2" />
-               <img src="/Project1.3.png" alt="Zombie Game Screenshot 3" />
-            </div>
-          <hr />
-          <h3 style={{ color: 'white', backgroundColor: 'black', border: '1px solid black', borderRadius: '10px' }}>
-             Web Game - Bug Catcher
-             </h3>
-            <ul>
-              <li>Developed a web game using HTML, CSS, JavaScript, which allows players to ‘catch’ bugs in an interactive environment, gaining points through various obstacles.</li>
-              <li>Implemented dynamic difficulty scaling where bug spawn frequency increases over time, with multiple bugs appearing simultaneously to enhance gameplay challenge.</li>
-              <li>Designed the game’s art style and color palette with a strong focus on visual aesthetics.</li>
-            </ul>
-                <div className="image-row">
-                  <img src="/Project2.1.png" alt="Bug Catcher Game Screenshot 1" />
-                  <img src="/Project2.2.png" alt="Bug Catcher Game Screenshot 2" />
-                  <img src="/Project2.3.png" alt="Bug Catcher Game Screenshot 3" />
-                </div>
+export default function Project() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  const [items, setItems] = useState([]);
+  const [formData, setFormData] = useState({
+    title: '',
+    firstname: '',
+    lastname: '',
+    email: '',
+    completion: '',
+    description: ''
+  });
+  const [editingId, setEditingId] = useState(null);
+  const [status, setStatus] = useState('');
+
+  // 加载所有 project
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/projects`);
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data);
+        }
+      } catch (err) {
+        console.error('Fetch projects failed:', err);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item._id);
+    setFormData({
+      title: item.title || '',
+      firstname: item.firstname || '',
+      lastname: item.lastname || '',
+      email: item.email || '',
+      completion: item.completion
+        ? item.completion.substring(0, 10)
+        : '',
+      description: item.description || ''
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this project?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/projects/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((i) => i._id !== id));
+      }
+    } catch (err) {
+      console.error('Delete project failed:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isAdmin) return;
+
+    setStatus('');
+    const method = editingId ? 'PUT' : 'POST';
+    const url = editingId
+      ? `${API_BASE}/api/projects/${editingId}`
+      : `${API_BASE}/api/projects`;
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setStatus(data.message || 'Save failed');
+        return;
+      }
+
+      if (editingId) {
+        setItems((prev) =>
+          prev.map((i) => (i._id === editingId ? data : i))
+        );
+        setStatus('Project updated.');
+      } else {
+        setItems((prev) => [...prev, data]);
+        setStatus('Project created.');
+      }
+
+      setEditingId(null);
+      setFormData({
+        title: '',
+        firstname: '',
+        lastname: '',
+        email: '',
+        completion: '',
+        description: ''
+      });
+    } catch (err) {
+      console.error('Save project failed:', err);
+      setStatus('Error saving project.');
+    }
+  };
+
+  return (
+    <div className="home">
+      <div className="overlay-box">
+        <h1>My Projects</h1>
+        <hr />
+
+        {items.length === 0 && <p>No projects yet.</p>}
+
+        {items.map((p) => (
+          <div
+            key={p._id}
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              padding: '10px',
+              marginBottom: '10px'
+            }}
+          >
+            <h3
+              style={{
+                color: 'white',
+                backgroundColor: 'black',
+                border: '1px solid black',
+                borderRadius: '10px'
+              }}
+            >
+              {p.title}
+            </h3>
+            <p>
+              Owner: {p.firstname} {p.lastname} ({p.email})
+            </p>
+            {p.completion && (
+              <p>
+                Completion:{' '}
+                {new Date(p.completion).toLocaleDateString()}
+              </p>
+            )}
+            <p>{p.description}</p>
+
+            {isAdmin && (
+              <div style={{ marginTop: '8px' }}>
+                <button onClick={() => handleEdit(p)}>Edit</button>{' '}
+                <button onClick={() => handleDelete(p._id)}>
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {isAdmin && (
+          <>
             <hr />
-            <h3 style={{ color: 'white', backgroundColor: 'black', border: '1px solid black', borderRadius: '10px' }}>
-               Personal Art Portfolio
-               </h3>
-            <ul>
-              <li>Created a series of digital paintings exploring themes of nature and technology.</li>
-              <li>Developed a unique character design for a personal project, focusing on silhouette and color theory.</li>
-              <li>Participated in online art challenges, consistently producing high-quality work under tight deadlines.</li>
-            </ul>
-                <div className="gallery">
-                  <img src="/Project3.1.png" alt="Art Portfolio Screenshot 2" />
-                  <img src="/Project3.2.png" alt="Art Portfolio Screenshot 3" />
-                  <img src="/Project3.3.png" alt="Art Portfolio Screenshot 4" />
-                  <img src="/Project3.4.png" alt="Art Portfolio Screenshot 5" />
-                </div>
-            <hr />
+            <h2>Manage Projects (Admin)</h2>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="title"
+                placeholder="Project Title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <input
+                type="text"
+                name="firstname"
+                placeholder="First Name"
+                value={formData.firstname}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <input
+                type="text"
+                name="lastname"
+                placeholder="Last Name"
+                value={formData.lastname}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <input
+                type="date"
+                name="completion"
+                value={formData.completion}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <textarea
+                name="description"
+                placeholder="Project description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+              />
+              <br />
+              <br />
+              <button type="submit">
+                {editingId ? 'Update' : 'Create'}
+              </button>
+            </form>
+            {status && <p style={{ marginTop: '10px' }}>{status}</p>}
+          </>
+        )}
       </div>
       <footer style={{ textAlign: 'center', color: 'lightblue' }}>
         Copyright © 2025 Haoxuan Chen
       </footer>
- </div>
-);
+    </div>
+  );
 }

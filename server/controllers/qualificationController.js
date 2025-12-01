@@ -1,3 +1,4 @@
+// server/controllers/qualificationController.js
 import Qualification from '../models/Qualification.js';
 export const getAll = async (_req, res) => res.json(await Qualification.find());
 export const getById = async (req, res) => {

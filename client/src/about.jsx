@@ -1,3 +1,4 @@
+// client/src/about.jsx
 import './controlled.css'
 export default function About() {
 return(
@@ -7,6 +8,7 @@ return(
           <img 
             src="/me.jpg"   
             alt="logo"
+            loading="lazy"
             style={{ width: '150px', height: '200px' }}
          />
           <h1>Haoxuan Chen<br /><br /> Game Developer</h1>

@@ -1,3 +1,4 @@
+// server/controllers/contactController.js
 import Contact from '../models/Contact.js';
 
 export const getAll = async (req, res) => {
