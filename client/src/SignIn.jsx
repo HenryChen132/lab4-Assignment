@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './controlled.css';
 import { useAuth } from './AuthContext';
-import { API_BASE } from './apiBase';
+import apiBase from './apiBase';          // ✅ 新增
 
 export default function SignIn() {
   const { setUser } = useAuth();
@@ -26,7 +26,7 @@ export default function SignIn() {
     setSuccess('');
 
     try {
-      const res = await fetch(`${apiBase}/auth/login`, {
+      const res = await fetch(`${apiBase}/auth/login`, {    // ✅ 用 apiBase
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

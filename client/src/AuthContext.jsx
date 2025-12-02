@@ -1,5 +1,6 @@
 // client/src/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import apiBase from './apiBase';   
 
 const AuthContext = createContext(null);
 
