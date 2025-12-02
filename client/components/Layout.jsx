@@ -2,27 +2,28 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../src/AuthContext';
-import { API_BASE } from '../src/apiBase';
+import apiBase from '../src/apiBase';
 
 export default function Layout() {
+
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-    const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      const res = await fetch(`${apiBase}/auth/logout`, {   // ✅ 不再写 localhost
+    
+      await fetch(`${apiBase}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
-      if (res.ok) {
-        setUser(null);
-        navigate('/');
-      }
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error('Logout request failed:', err);
+    } finally {
+   
+      setUser(null);
+      navigate('/');
     }
   };
-
 
   return (
     <>
@@ -30,7 +31,7 @@ export default function Layout() {
         style={{
           float: 'left',
           textDecoration: 'underline',
-          color: 'lightblue'
+          color: 'lightblue',
         }}
       >
         Student name: HaoxuanChen
@@ -39,7 +40,7 @@ export default function Layout() {
         style={{
           float: 'right',
           textDecoration: 'underline',
-          color: 'lightblue'
+          color: 'lightblue',
         }}
       >
         Student ID: 301420628
@@ -51,7 +52,7 @@ export default function Layout() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px'
+          gap: '10px',
         }}
       >
         <img
@@ -67,8 +68,7 @@ export default function Layout() {
       <nav>
         <Link to="/">Home</Link> | <Link to="/about">About Me</Link> |{' '}
         <Link to="/education">Education</Link> |{' '}
-        <Link to="/project">Project</Link> |{' '}
-        <Link to="/services">Services</Link> |{' '}
+        <Link to="/project">Project</Link> | <Link to="/services">Services</Link> |{' '}
         <Link to="/contact">Contact Me</Link>
       </nav>
 
