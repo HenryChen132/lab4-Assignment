@@ -8,11 +8,11 @@ export default function Layout() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+    const handleLogout = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/auth/logout`, {
+      const res = await fetch(`${apiBase}/auth/logout`, {   // ✅ 不再写 localhost
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
       });
       if (res.ok) {
         setUser(null);
@@ -22,6 +22,7 @@ export default function Layout() {
       console.error('Logout failed:', err);
     }
   };
+
 
   return (
     <>
