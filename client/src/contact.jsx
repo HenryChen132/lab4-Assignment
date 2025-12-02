@@ -1,40 +1,40 @@
 // client/src/contact.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './controlled.css';
-import { useAuth } from './AuthContext';
-import { API_BASE } from './apiBase';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./controlled.css";
+import { useAuth } from "./AuthContext";
+import apiBase from "./apiBase";
 
 export default function Contact() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    contactNumber: '',
-    email: '',
-    message: ''
+    firstName: "",
+    lastName: "",
+    contactNumber: "",
+    email: "",
+    message: "",
   });
 
   const [contacts, setContacts] = useState([]);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState("");
 
   // Admin：加载所有 contact 记录
   useEffect(() => {
     const fetchContacts = async () => {
       if (!isAdmin) return;
       try {
-        const res = await fetch(`${API_BASE}/api/contacts`, {
-          credentials: 'include'
+        const res = await fetch(`${apiBase}/contacts`, {
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
           setContacts(data);
         }
       } catch (err) {
-        console.error('Failed to fetch contacts', err);
+        console.error("Failed to fetch contacts", err);
       }
     };
     fetchContacts();
@@ -46,64 +46,64 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus('');
+    setStatus("");
 
     const payload = {
       firstname: formData.firstName,
       lastname: formData.lastName,
       contactNumber: formData.contactNumber,
       email: formData.email,
-      message: formData.message
+      message: formData.message,
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const res = await fetch(`${apiBase}/contacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        setStatus('Failed to send message.');
+        setStatus("Failed to send message.");
         return;
       }
 
-      setStatus('Message sent successfully!');
+      setStatus("Message sent successfully!");
       setFormData({
-        firstName: '',
-        lastName: '',
-        contactNumber: '',
-        email: '',
-        message: ''
+        firstName: "",
+        lastName: "",
+        contactNumber: "",
+        email: "",
+        message: "",
       });
 
       // Admin 当前页也刷新列表
       if (isAdmin) {
-        const data = await fetch(`${API_BASE}/api/contacts`, {
-          credentials: 'include'
+        const data = await fetch(`${apiBase}/contacts`, {
+          credentials: "include",
         }).then((r) => r.json());
         setContacts(data);
       }
 
-      navigate('/');
+      navigate("/"); // 老师如果希望留在本页，把这行删掉即可
     } catch (err) {
-      console.error('Submit contact failed:', err);
-      setStatus('Error sending message.');
+      console.error("Submit contact failed:", err);
+      setStatus("Error sending message.");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this contact?')) return;
+    if (!window.confirm("Delete this contact?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/contacts/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const res = await fetch(`${apiBase}/contacts/${id}`, {
+        method: "DELETE",
+        credentials: "include",
       });
       if (res.ok) {
         setContacts((prev) => prev.filter((c) => c._id !== id));
       }
     } catch (err) {
-      console.error('Delete failed:', err);
+      console.error("Delete failed:", err);
     }
   };
 
@@ -113,10 +113,10 @@ export default function Contact() {
         <div className="contact-panel">
           <h2
             style={{
-              color: 'white',
-              backgroundColor: 'black',
-              border: '1px solid black',
-              borderRadius: '10px'
+              color: "white",
+              backgroundColor: "black",
+              border: "1px solid black",
+              borderRadius: "10px",
             }}
           >
             Contact Information
@@ -131,7 +131,7 @@ export default function Contact() {
             <strong>Location:</strong> Toronto, ON, Canada
           </p>
           <p>
-            <strong>LinkedIn:</strong>{' '}
+            <strong>LinkedIn:</strong>{" "}
             <a
               href="https://www.linkedin.com/in/haoxuan-chen-217353383/"
               target="_blank"
@@ -141,7 +141,7 @@ export default function Contact() {
             </a>
           </p>
           <p>
-            <strong>GitHub:</strong>{' '}
+            <strong>GitHub:</strong>{" "}
             <a
               href="https://github.com/HenryChen132"
               target="_blank"
@@ -156,10 +156,10 @@ export default function Contact() {
 
         <h2
           style={{
-            color: 'white',
-            backgroundColor: 'black',
-            border: '1px solid black',
-            borderRadius: '10px'
+            color: "white",
+            backgroundColor: "black",
+            border: "1px solid black",
+            borderRadius: "10px",
           }}
         >
           Information Box
@@ -219,11 +219,11 @@ export default function Contact() {
               type="button"
               onClick={() =>
                 setFormData({
-                  firstName: '',
-                  lastName: '',
-                  contactNumber: '',
-                  email: '',
-                  message: ''
+                  firstName: "",
+                  lastName: "",
+                  contactNumber: "",
+                  email: "",
+                  message: "",
                 })
               }
             >
@@ -233,7 +233,7 @@ export default function Contact() {
           </div>
         </form>
 
-        {status && <p style={{ marginTop: '10px' }}>{status}</p>}
+        {status && <p style={{ marginTop: "10px" }}>{status}</p>}
 
         {isAdmin && (
           <>
@@ -244,16 +244,16 @@ export default function Contact() {
               <div
                 key={c._id}
                 style={{
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  padding: '8px',
-                  marginBottom: '8px'
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "8px",
+                  marginBottom: "8px",
                 }}
               >
                 <p>
                   <b>
                     {c.firstname} {c.lastname}
-                  </b>{' '}
+                  </b>{" "}
                   ({c.email})
                 </p>
                 {c.contactNumber && <p>Phone: {c.contactNumber}</p>}
@@ -264,7 +264,7 @@ export default function Contact() {
           </>
         )}
       </div>
-      <footer style={{ textAlign: 'center', color: 'lightblue' }}>
+      <footer style={{ textAlign: "center", color: "lightblue" }}>
         Copyright © 2025 Haoxuan Chen
       </footer>
     </div>

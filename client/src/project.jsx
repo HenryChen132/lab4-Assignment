@@ -1,36 +1,36 @@
 // client/src/project.jsx
-import React, { useEffect, useState } from 'react';
-import './controlled.css';
-import { useAuth } from './AuthContext';
-import { API_BASE } from './apiBase';
+import React, { useEffect, useState } from "react";
+import "./controlled.css";
+import { useAuth } from "./AuthContext";
+import apiBase from "./apiBase";
 
 export default function Project() {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    firstname: '',
-    lastname: '',
-    email: '',
-    completion: '',
-    description: ''
+    title: "",
+    firstname: "",
+    lastname: "",
+    email: "",
+    completion: "",
+    description: "",
   });
   const [editingId, setEditingId] = useState(null);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState("");
 
   // 加载所有 project
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/projects`);
+        const res = await fetch(`${apiBase}/projects`);
         if (res.ok) {
           const data = await res.json();
           setItems(data);
         }
       } catch (err) {
-        console.error('Fetch projects failed:', err);
+        console.error("Fetch projects failed:", err);
       }
     };
     fetchProjects();
@@ -43,29 +43,27 @@ export default function Project() {
   const handleEdit = (item) => {
     setEditingId(item._id);
     setFormData({
-      title: item.title || '',
-      firstname: item.firstname || '',
-      lastname: item.lastname || '',
-      email: item.email || '',
-      completion: item.completion
-        ? item.completion.substring(0, 10)
-        : '',
-      description: item.description || ''
+      title: item.title || "",
+      firstname: item.firstname || "",
+      lastname: item.lastname || "",
+      email: item.email || "",
+      completion: item.completion ? item.completion.substring(0, 10) : "",
+      description: item.description || "",
     });
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this project?')) return;
+    if (!window.confirm("Delete this project?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/projects/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const res = await fetch(`${apiBase}/projects/${id}`, {
+        method: "DELETE",
+        credentials: "include",
       });
       if (res.ok) {
         setItems((prev) => prev.filter((i) => i._id !== id));
       }
     } catch (err) {
-      console.error('Delete project failed:', err);
+      console.error("Delete project failed:", err);
     }
   };
 
@@ -73,49 +71,47 @@ export default function Project() {
     e.preventDefault();
     if (!isAdmin) return;
 
-    setStatus('');
-    const method = editingId ? 'PUT' : 'POST';
+    setStatus("");
+    const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `${API_BASE}/api/projects/${editingId}`
-      : `${API_BASE}/api/projects`;
+      ? `${apiBase}/projects/${editingId}`
+      : `${apiBase}/projects`;
 
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(formData)
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setStatus(data.message || 'Save failed');
+        setStatus(data.message || "Save failed");
         return;
       }
 
       if (editingId) {
-        setItems((prev) =>
-          prev.map((i) => (i._id === editingId ? data : i))
-        );
-        setStatus('Project updated.');
+        setItems((prev) => prev.map((i) => (i._id === editingId ? data : i)));
+        setStatus("Project updated.");
       } else {
         setItems((prev) => [...prev, data]);
-        setStatus('Project created.');
+        setStatus("Project created.");
       }
 
       setEditingId(null);
       setFormData({
-        title: '',
-        firstname: '',
-        lastname: '',
-        email: '',
-        completion: '',
-        description: ''
+        title: "",
+        firstname: "",
+        lastname: "",
+        email: "",
+        completion: "",
+        description: "",
       });
     } catch (err) {
-      console.error('Save project failed:', err);
-      setStatus('Error saving project.');
+      console.error("Save project failed:", err);
+      setStatus("Error saving project.");
     }
   };
 
@@ -131,18 +127,18 @@ export default function Project() {
           <div
             key={p._id}
             style={{
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              padding: '10px',
-              marginBottom: '10px'
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "10px",
+              marginBottom: "10px",
             }}
           >
             <h3
               style={{
-                color: 'white',
-                backgroundColor: 'black',
-                border: '1px solid black',
-                borderRadius: '10px'
+                color: "white",
+                backgroundColor: "black",
+                border: "1px solid black",
+                borderRadius: "10px",
               }}
             >
               {p.title}
@@ -152,18 +148,15 @@ export default function Project() {
             </p>
             {p.completion && (
               <p>
-                Completion:{' '}
-                {new Date(p.completion).toLocaleDateString()}
+                Completion: {new Date(p.completion).toLocaleDateString()}
               </p>
             )}
             <p>{p.description}</p>
 
             {isAdmin && (
-              <div style={{ marginTop: '8px' }}>
-                <button onClick={() => handleEdit(p)}>Edit</button>{' '}
-                <button onClick={() => handleDelete(p._id)}>
-                  Delete
-                </button>
+              <div style={{ marginTop: "8px" }}>
+                <button onClick={() => handleEdit(p)}>Edit</button>{" "}
+                <button onClick={() => handleDelete(p._id)}>Delete</button>
               </div>
             )}
           </div>
@@ -233,14 +226,14 @@ export default function Project() {
               <br />
               <br />
               <button type="submit">
-                {editingId ? 'Update' : 'Create'}
+                {editingId ? "Update" : "Create"}
               </button>
             </form>
-            {status && <p style={{ marginTop: '10px' }}>{status}</p>}
+            {status && <p style={{ marginTop: "10px" }}>{status}</p>}
           </>
         )}
       </div>
-      <footer style={{ textAlign: 'center', color: 'lightblue' }}>
+      <footer style={{ textAlign: "center", color: "lightblue" }}>
         Copyright © 2025 Haoxuan Chen
       </footer>
     </div>

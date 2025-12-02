@@ -1,36 +1,36 @@
 // client/src/education.jsx
-import React, { useEffect, useState } from 'react';
-import './controlled.css';
-import { useAuth } from './AuthContext';
-import { API_BASE } from './apiBase';
+import React, { useEffect, useState } from "react";
+import "./controlled.css";
+import { useAuth } from "./AuthContext";
+import apiBase from "./apiBase";
 
 export default function Education() {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    firstname: '',
-    lastname: '',
-    email: '',
-    completion: '',
-    description: ''
+    title: "",
+    firstname: "",
+    lastname: "",
+    email: "",
+    completion: "",
+    description: "",
   });
   const [editingId, setEditingId] = useState(null);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState("");
 
   // 加载所有 qualification
   useEffect(() => {
     const fetchQualifications = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/qualifications`);
+        const res = await fetch(`${apiBase}/qualifications`);
         if (res.ok) {
           const data = await res.json();
           setItems(data);
         }
       } catch (err) {
-        console.error('Fetch qualifications failed:', err);
+        console.error("Fetch qualifications failed:", err);
       }
     };
     fetchQualifications();
@@ -43,29 +43,27 @@ export default function Education() {
   const handleEdit = (item) => {
     setEditingId(item._id);
     setFormData({
-      title: item.title || '',
-      firstname: item.firstname || '',
-      lastname: item.lastname || '',
-      email: item.email || '',
-      completion: item.completion
-        ? item.completion.substring(0, 10)
-        : '',
-      description: item.description || ''
+      title: item.title || "",
+      firstname: item.firstname || "",
+      lastname: item.lastname || "",
+      email: item.email || "",
+      completion: item.completion ? item.completion.substring(0, 10) : "",
+      description: item.description || "",
     });
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this record?')) return;
+    if (!window.confirm("Delete this record?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/qualifications/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      const res = await fetch(`${apiBase}/qualifications/${id}`, {
+        method: "DELETE",
+        credentials: "include",
       });
       if (res.ok) {
         setItems((prev) => prev.filter((i) => i._id !== id));
       }
     } catch (err) {
-      console.error('Delete qualification failed:', err);
+      console.error("Delete qualification failed:", err);
     }
   };
 
@@ -73,49 +71,47 @@ export default function Education() {
     e.preventDefault();
     if (!isAdmin) return;
 
-    setStatus('');
-    const method = editingId ? 'PUT' : 'POST';
+    setStatus("");
+    const method = editingId ? "PUT" : "POST";
     const url = editingId
-      ? `${API_BASE}/api/qualifications/${editingId}`
-      : `${API_BASE}/api/qualifications`;
+      ? `${apiBase}/qualifications/${editingId}`
+      : `${apiBase}/qualifications`;
 
     try {
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(formData)
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setStatus(data.message || 'Save failed');
+        setStatus(data.message || "Save failed");
         return;
       }
 
       if (editingId) {
-        setItems((prev) =>
-          prev.map((i) => (i._id === editingId ? data : i))
-        );
-        setStatus('Record updated.');
+        setItems((prev) => prev.map((i) => (i._id === editingId ? data : i)));
+        setStatus("Record updated.");
       } else {
         setItems((prev) => [...prev, data]);
-        setStatus('Record created.');
+        setStatus("Record created.");
       }
 
       setEditingId(null);
       setFormData({
-        title: '',
-        firstname: '',
-        lastname: '',
-        email: '',
-        completion: '',
-        description: ''
+        title: "",
+        firstname: "",
+        lastname: "",
+        email: "",
+        completion: "",
+        description: "",
       });
     } catch (err) {
-      console.error('Save qualification failed:', err);
-      setStatus('Error saving record.');
+      console.error("Save qualification failed:", err);
+      setStatus("Error saving record.");
     }
   };
 
@@ -131,18 +127,18 @@ export default function Education() {
           <div
             key={q._id}
             style={{
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              padding: '10px',
-              marginBottom: '10px'
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "10px",
+              marginBottom: "10px",
             }}
           >
             <h2
               style={{
-                color: 'white',
-                backgroundColor: 'black',
-                border: '1px solid black',
-                borderRadius: '10px'
+                color: "white",
+                backgroundColor: "black",
+                border: "1px solid black",
+                borderRadius: "10px",
               }}
             >
               {q.title}
@@ -152,18 +148,15 @@ export default function Education() {
             </p>
             {q.completion && (
               <p>
-                Completion:{' '}
-                {new Date(q.completion).toLocaleDateString()}
+                Completion: {new Date(q.completion).toLocaleDateString()}
               </p>
             )}
             <p>{q.description}</p>
 
             {isAdmin && (
-              <div style={{ marginTop: '8px' }}>
-                <button onClick={() => handleEdit(q)}>Edit</button>{' '}
-                <button onClick={() => handleDelete(q._id)}>
-                  Delete
-                </button>
+              <div style={{ marginTop: "8px" }}>
+                <button onClick={() => handleEdit(q)}>Edit</button>{" "}
+                <button onClick={() => handleDelete(q._id)}>Delete</button>
               </div>
             )}
           </div>
@@ -233,14 +226,14 @@ export default function Education() {
               <br />
               <br />
               <button type="submit">
-                {editingId ? 'Update' : 'Create'}
+                {editingId ? "Update" : "Create"}
               </button>
             </form>
-            {status && <p style={{ marginTop: '10px' }}>{status}</p>}
+            {status && <p style={{ marginTop: "10px" }}>{status}</p>}
           </>
         )}
       </div>
-      <footer style={{ textAlign: 'center', color: 'lightblue' }}>
+      <footer style={{ textAlign: "center", color: "lightblue" }}>
         Copyright © 2025 Haoxuan Chen
       </footer>
     </div>
