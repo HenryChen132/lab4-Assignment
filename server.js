@@ -2,7 +2,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import express from 'express'; // 新增：为了使用 express.static
+import express from 'express'; // 为了用 express.static
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -16,20 +16,25 @@ import qualificationRoutes from './server/routes/qualificationRoutes.js';
 import userRoutes from './server/routes/userRoutes.js';
 import authRoutes from './server/routes/authRoutes.js';
 
-app.use('/api/auth', authRoutes);
-app.use('/api/contacts', contactRoutes);
-app.use('/api/projects', projectRoutes);
+// API 路由
+app.use('/api/auth',          authRoutes);
+app.use('/api/contacts',      contactRoutes);
+app.use('/api/projects',      projectRoutes);
 app.use('/api/qualifications', qualificationRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users',         userRoutes);
 
-
+// 前端静态资源 & SPA fallback
 const clientDistPath = path.join(__dirname, 'client', 'dist');
 app.use(express.static(clientDistPath));
-app.get('*', (_req, res) => {
 
+// ⚠️ 这里用正则而不是 '*'
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
     if (err) {
-      res.send('Portfolio API is running');
+      console.error('Error sending index.html:', err);
+      if (!res.headersSent) {
+        res.status(200).send('Portfolio API is running');
+      }
     }
   });
 });
