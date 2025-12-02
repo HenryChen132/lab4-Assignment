@@ -9,12 +9,15 @@ const signToken = (user) =>
     { expiresIn: '7d' }
   );
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const cookieOpts = {
   httpOnly: true,
-  sameSite: 'lax',   // 本地调试
-  secure: false,     // 以后部署到 https 要改成 true
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  sameSite: isProd ? 'none' : 'lax',
+  secure: isProd,                  
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
+
 
 export const register = async (req, res) => {
   try {

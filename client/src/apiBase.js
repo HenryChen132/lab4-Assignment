@@ -1,6 +1,19 @@
 // client/src/apiBase.js
-const isLocalhost =
-  typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
+let apiBase = import.meta.env.VITE_API_BASE;
 
 
-export const API_BASE = isLocalhost ? 'http://localhost:5000' : '';
+if (!apiBase) {
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  ) {
+
+    apiBase = "http://localhost:5000/api";
+  } else {
+  
+    apiBase = "https://lab4-assignment-ytmg.onrender.com/api";
+  }
+}
+
+export default apiBase;

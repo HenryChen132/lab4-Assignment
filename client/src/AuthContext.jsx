@@ -7,12 +7,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);   // { id, name, email, role }
   const [loading, setLoading] = useState(true);
 
-  // 刷新页面时，从 /me 取当前登录用户
+ 
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
-          credentials: 'include'
+        const res = await fetch(`${apiBase}/auth/me`, {
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
